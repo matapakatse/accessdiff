@@ -60,10 +60,11 @@ export async function researchFinding(result:AssessmentResult,options:ExaOptions
     let run=record(await created.json());
     if(typeof run.id!=='string'||!/^agent_run_[A-Za-z0-9_.:-]+$/.test(run.id)) throw Error('Invalid Exa run');
     const runId=run.id;
-    for(let attempt=0;attempt<=(options.maxPolls??8);attempt++){
+    const maxPolls=options.maxPolls??24;
+    for(let attempt=0;attempt<=maxPolls;attempt++){
       if(run.status==='completed') return completed(run);
       if(run.status==='failed'||run.status==='cancelled') return {status:'failed',reason:'Exa research did not complete; the AccessDiff finding is unchanged.'};
-      if(attempt===(options.maxPolls??8)) break;
+      if(attempt===maxPolls) break;
       await (options.wait??(()=>new Promise(resolve=>setTimeout(resolve,1250))))();
       const polled=await request(`https://api.exa.ai/agent/runs/${encodeURIComponent(runId)}`,{method:'GET',redirect:'error',signal:AbortSignal.timeout(10000),headers});
       if(!polled.ok) return {status:'failed',reason:`Exa returned HTTP ${polled.status}; the AccessDiff finding is unchanged.`};
