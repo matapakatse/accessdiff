@@ -1,13 +1,9 @@
 import { COMMENT_MARKER, type AssessmentResult } from './contract.js';
 
-/** Render every untrusted character as an entity, including punctuation and mentions.
- * Entities are rendered as text by Markdown; they cannot become links or raw HTML.
- */
+/** Keep ordinary prose readable; neutralize Markdown syntax, HTML and mentions. */
 export function escapeMarkdown(value: unknown): string {
-  return Array.from(String(value ?? ''), c => {
-    const point = c.codePointAt(0)!;
-    return /[a-zA-Z0-9 ]/.test(c) ? c : `&#${point};`;
-  }).join('');
+  return String(value ?? '').replace(/[&<>\[\]`*_|@\\\r\n/#]/g,
+    c => `&#${c.codePointAt(0)};`).replace(/^([-+])/, c => `&#${c.codePointAt(0)};`);
 }
 
 export function renderAssessment(result: AssessmentResult): string {
@@ -28,6 +24,12 @@ export function renderAssessment(result: AssessmentResult): string {
     ...result.scenarios.map(s => `| ${text(s.actor)} | ${text(s.before)} | ${text(s.after)} | ${text(s.explanation)} |`),
     '',
   ];
+  for (const scenario of result.scenarios) {
+    for (const evidence of scenario.evidence ?? []) {
+      lines.push(`- **${text(scenario.actor)} evidence:** ${text(evidence.revision)} line ${text(evidence.line)}: ${text(evidence.quote)}`);
+    }
+  }
+  lines.push('');
   if (result.finding) {
     lines.push(`### ${text(result.finding.title)}`, '', text(result.finding.impact), '', `**Suggested correction:** ${text(result.finding.suggestion)}`, '', '**Evidence:**', '');
     for (const evidence of result.finding.evidence) {

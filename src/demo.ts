@@ -1,11 +1,14 @@
 import { assessFixture, fixedFixture, vulnerableFixture } from './fixture.js';
 import { renderAssessment } from './render.js';
-
-const common = { path: 'invoice-route.js', baseSha: 'demo-base', headSha: 'demo-head' };
-console.log('# AccessDiff fixture demonstration\n\nThis local demonstration uses hardcoded known examples. It does not call a model or publish a GitHub comment.\n');
-console.log('## 1. Ownership check removed\n');
-console.log(renderAssessment(assessFixture({ ...common, base: fixedFixture, head: vulnerableFixture })));
-console.log('\n---\n\n## 2. Ownership check restored\n');
-console.log(renderAssessment(assessFixture({ ...common, base: vulnerableFixture, head: fixedFixture })));
-console.log('\n---\n\n## 3. Safe unchanged example\n');
-console.log(renderAssessment(assessFixture({ ...common, base: fixedFixture, head: fixedFixture })));
+console.log('# AccessDiff fixture demonstration\n\nThese hardcoded examples do not call a model or publish a GitHub comment. Revision labels identify fixture pairs, not Git commits. The safe unchanged example is not a helper-based secure-lookalike test.\n');
+const examples = [
+  {title:'Ownership check removed',base:fixedFixture,head:vulnerableFixture,baseSha:'removal-fixed-base',headSha:'removal-vulnerable-head'},
+  {title:'Ownership check restored',base:vulnerableFixture,head:fixedFixture,baseSha:'repair-vulnerable-base',headSha:'repair-fixed-head'},
+  {title:'Safe unchanged example',base:fixedFixture,head:fixedFixture,baseSha:'unchanged-fixed-base',headSha:'unchanged-fixed-head'},
+  {title:'Incomplete: unsupported source',base:fixedFixture,head:'// Route delegates to an unavailable helper.',baseSha:'incomplete-fixed-base',headSha:'incomplete-unknown-head'},
+];
+for (const [index, example] of examples.entries()) {
+  if(index) console.log('\n---\n');
+  console.log(`## ${index+1}. ${example.title}\n`);
+  console.log(renderAssessment(assessFixture({...example,path:'fixtures/invoices.ts'})));
+}

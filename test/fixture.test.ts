@@ -15,7 +15,7 @@ test('bundled removal exposes other customer and roundtrips without undefined', 
   assert.ok(!renderAssessment(result).includes('undefined'));
 });
 
-test('fix and safe lookalike have no finding', () => {
+test('fix and safe unchanged fixture have no finding', () => {
   for (const base of [fixedFixture, vulnerableFixture]) {
     const result = assessFixture({ ...common, base, head: fixedFixture });
     assert.equal(result.finding, null);
@@ -44,4 +44,26 @@ test('untrusted content cannot inject mentions, HTML, links or table rows', () =
   assert.ok(output.startsWith(COMMENT_MARKER));
   for (const unsafe of ['@everyone', '[click]', '<img', '\n| forged', '`code`', '![image]']) assert.ok(!output.includes(unsafe));
   assert.ok(output.includes('&#64;everyone'));
+});
+
+test('non-findings explain denial and cite the actual guard in reviewed source',()=>{
+  for(const base of [vulnerableFixture,fixedFixture]) {
+    const result=assessFixture({...common,base,head:fixedFixture});
+    const scenario=result.scenarios.find(s=>s.actor==='other_customer')!;
+    assert.match(scenario.explanation,base===vulnerableFixture?/added ownership check now returns 403/:/in both revisions/);
+    assert.equal(scenario.evidence?.length,base===vulnerableFixture?1:2);
+    for(const e of scenario.evidence??[]) assert.equal((e.revision==='base'?base:fixedFixture).split('\n')[e.line-1]?.trim(),e.quote);
+    const markdown=renderAssessment(result);
+    assert.match(markdown,/head line 5:/);
+    assert.ok(markdown.includes('403'));
+    assert.equal(result.finding,null);
+  }
+});
+test('incomplete fixture renders an honest conclusion and readable punctuation',()=>{
+  const result=assessFixture({...common,base:fixedFixture,head:'unknown'});
+  const markdown=renderAssessment(result);
+  assert.match(markdown,/incomplete/);assert.match(markdown,/No conclusion/);
+  assert.ok(!markdown.includes('undefined'));assert.ok(!markdown.includes('[object Object]'));
+  assert.ok(markdown.includes('invoice-route.js'));
+  for(const entity of ['&#46;','&#45;','&#58;']) assert.ok(!markdown.includes(entity));
 });

@@ -19,7 +19,7 @@ export function assessFixture(input: ReviewInput): AssessmentResult {
     statusReason: 'Hardcoded demonstration of the bundled fixtures. No model ran and no application requests were executed.',
     scenarios: [
       { actor: 'owner', before: 'allowed', after: 'allowed', explanation: 'Assumes a valid authenticated owner and an existing invoice.' },
-      { actor: 'other_customer', before: baseExposed ? 'allowed' : 'denied', after: headExposed ? 'allowed' : 'denied', explanation: 'An authenticated customer who knows another existing invoice ID reaches the return when ownership is not checked.' },
+      { actor: 'other_customer', before: baseExposed ? 'allowed' : 'denied', after: headExposed ? 'allowed' : 'denied', explanation: headExposed ? 'The ownership check is absent in head, so another authenticated customer can receive the invoice.' : baseExposed ? 'The added ownership check now returns 403 before another customer can receive the invoice.' : 'The ownership check returns 403 for another customer in both revisions.', evidence: headExposed ? [] : [{ revision: 'head', line: 5, quote: 'if (invoice.customerId !== req.user.id) return { status: 403 };' }, ...(!baseExposed ? [{ revision: 'base' as const, line: 5, quote: 'if (invoice.customerId !== req.user.id) return { status: 403 };' }] : [])] },
       { actor: 'anonymous', before: 'denied', after: 'denied', explanation: 'Both bundled routes return 401 before querying when req.user is absent.' },
     ],
     finding: headExposed ? {
