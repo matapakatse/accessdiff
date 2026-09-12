@@ -7,7 +7,7 @@ A small GitHub pull-request review prototype asking **who could gain access beca
 - Local fixture demo: three actors, removed ownership check, restored check, explicit simulated output.
 - OpenRouter adapter: one actual API call when configured, **owner access only**, runtime validation and exact source evidence checking.
 - GitHub adapter: revision-specific API reads, bot-owned marker comment update and a head check immediately before publishing.
-- No live API or GitHub run has been verified yet. Tests use mocks. This is not a production scanner or a security approval.
+- A live GitHub-to-OpenRouter-to-comment run has now passed for the owner scenario on the removed-guard fixture. Tests use mocks; this single live result does not establish general model accuracy. This is not a production scanner or a security approval.
 
 The supplied brief asked to label the owner as affected by a missing ownership check. That is incorrect: the other customer gains access, while the owner remains permitted. The fixture demonstrates the cross-customer issue. The owner-only model pass cannot find that issue, and does not pretend to. Extending the validated model output to other_customer is the next product milestone **after the live integration works**.
 
@@ -54,6 +54,6 @@ First show the clearly labeled local fixture report: owner permitted, other cust
 
 ## Verification and handoff
 
-Tier 1 is locally runnable. Tier 2 and Tier 3 have implementations and mocked tests, but cannot be called end-to-end verified until the team configures and runs their services. No Tier 4 investigation loop or multi-actor model analysis was added. No automatic fixes, merges, dashboard or voice interface.
+Tier 1 is locally runnable. Tier 2 and Tier 3 have one successful live owner-scenario run, alongside mocked tests. Initial runs exposed output-token exhaustion, a GitHub-operation failure, and a model reasoning contradiction; JSON mode, a larger bounded output allowance and explicit actor assumptions produced the expected final result. The GitHub-operation failure did not recur; its precise cause remains unknown. No Tier 4 investigation loop or multi-actor model analysis was added. No automatic fixes, merges, dashboard or voice interface.
 
 Implementation references: [OpenRouter API](https://openrouter.ai/docs/api/reference/overview) and [GitHub workflow events](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request_target).
