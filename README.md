@@ -32,7 +32,7 @@ Set OPENROUTER_API_KEY and MODEL_NAME in your shell using your normal secure cre
 npm run live -- fixtures/invoices.ts fixtures/invoice-vulnerable.txt
 ```
 
-Use the actual fixture filenames present in fixtures/. The model checks owner access only, so removing an owner filter should not falsely flag an owner-access regression. Unsupported context gives incomplete; network/format failures give failed, never a fabricated finding. The adapter permits one call, 45 seconds, 1,600 output tokens and at most 80,000 bytes per input file. Token limits are not a dollar-budget guarantee.
+Use the actual fixture filenames present in fixtures/. The model checks owner access only, so removing an owner filter should not falsely flag an owner-access regression. Unsupported context gives incomplete; network/format failures give failed, never a fabricated finding. The adapter permits one call, 45 seconds, 4,096 output tokens and at most 80,000 bytes per input file. Token limits are not a dollar-budget guarantee.
 
 ## GitHub setup
 
