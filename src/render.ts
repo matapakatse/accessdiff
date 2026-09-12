@@ -6,8 +6,15 @@ export function escapeMarkdown(value: unknown): string {
     c => `&#${c.codePointAt(0)};`).replace(/^([-+])/, c => `&#${c.codePointAt(0)};`);
 }
 
-export function renderAssessment(result: AssessmentResult): string {
+export function renderAssessment(result: AssessmentResult, repository?: string): string {
   const text = escapeMarkdown;
+  const source = (revision: 'base'|'head', line: number) => {
+    const sha = revision === 'base' ? result.baseSha : result.headSha;
+    if (repository && /^[\w.-]+\/[\w.-]+$/.test(repository) && /^[a-f0-9]{40}$/i.test(sha) && Number.isInteger(line) && line>0) {
+      return `[${revision} line ${line}](https://github.com/${repository}/blob/${sha}/${result.path.split('/').map(encodeURIComponent).join('/')}#L${line})`;
+    }
+    return `${text(revision)} line ${text(line)}`;
+  };
   const lines = [
     COMMENT_MARKER,
     '## AccessDiff — who gains access?',
@@ -26,14 +33,14 @@ export function renderAssessment(result: AssessmentResult): string {
   ];
   for (const scenario of result.scenarios) {
     for (const evidence of scenario.evidence ?? []) {
-      lines.push(`- **${text(scenario.actor)} evidence:** ${text(evidence.revision)} line ${text(evidence.line)}: ${text(evidence.quote)}`);
+      lines.push(`- **${text(scenario.actor)} evidence:** ${source(evidence.revision,evidence.line)}: ${text(evidence.quote)}`);
     }
   }
   lines.push('');
   if (result.finding) {
     lines.push(`### ${text(result.finding.title)}`, '', text(result.finding.impact), '', `**Suggested correction:** ${text(result.finding.suggestion)}`, '', '**Evidence:**', '');
     for (const evidence of result.finding.evidence) {
-      lines.push(`- ${text(evidence.revision)} line ${text(evidence.line)}: ${text(evidence.quote)}`);
+      lines.push(`- ${source(evidence.revision,evidence.line)}: ${text(evidence.quote)}`);
     }
   } else {
     lines.push(result.status === 'complete' ? 'No ownership finding reported within this assessment’s scope. This is not a security approval.' : 'No conclusion: the assessment did not complete.');

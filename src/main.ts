@@ -9,7 +9,7 @@ try {
   stage='model assessment';
   const result=await assessModel(input,{apiKey:process.env.OPENROUTER_API_KEY??'',model:process.env.MODEL_NAME??''});
   stage='GitHub publication';
-  await publishAssessment(config,result,renderAssessment(result));
+  await publishAssessment(config,result,renderAssessment(result,config.repository));
   const followUp=await syncFollowUp(result,`https://github.com/${config.repository}/pull/${config.prNumber}`,{apiKey:process.env.AMBIGUOUS_API_KEY,workspaceId:process.env.AMBIGUOUS_WORKSPACE_ID});
   console.log(`Ambiguous: ${followUp.status}. ${followUp.reason}`);
   console.log(`AccessDiff published a ${result.status} assessment.`);
