@@ -23,3 +23,9 @@ test('valid owner regression evidence accepted but wrong source line rejected',(
   assert.ok(validateModel(regression,input).finding);
   assert.throws(()=>validateModel({...regression,finding:{...regression.finding,evidence:[{revision:'head',line:2,quote:'return invoice;'}]}},input));
 });
+test('truncated completion is distinguished from malformed JSON',async()=>{
+ for(const [finish_reason,content,expected] of [['length','{',/token limit/],['stop','{',/model JSON/]]) {
+  const r=await assessModel(input,{apiKey:'secret',model:'chosen',fetch:(async()=>Response.json({choices:[{finish_reason,message:{content}}]})) as typeof fetch});
+  assert.equal(r.status,'failed');assert.match(r.statusReason,expected as RegExp);
+ }
+});
