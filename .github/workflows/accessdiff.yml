@@ -27,6 +27,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+          AMBIGUOUS_API_KEY: ${{ secrets.AMBIGUOUS_API_KEY }}
+          AMBIGUOUS_WORKSPACE_ID: ${{ vars.AMBIGUOUS_WORKSPACE_ID }}
           MODEL_NAME: ${{ vars.MODEL_NAME }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
