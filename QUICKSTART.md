@@ -18,11 +18,12 @@ GitHub repository Settings → Secrets and variables → Actions:
 | Kind | Name | Value |
 | --- | --- | --- |
 | Secret | OPENROUTER_API_KEY | Your private OpenRouter key |
+| Secret, optional | EXA_API_KEY | Exa key for grounded remediation research |
 | Variable | MODEL_NAME | nvidia/nemotron-3-super-120b-a12b:free |
 | Secret, optional | AMBIGUOUS_API_KEY | Your Ambiguous key with task read/write access |
 | Variable, optional | AMBIGUOUS_WORKSPACE_ID | Expected workspace ID; rejects a mismatched workspace |
 
-Never commit keys. Free providers have rate/availability limits. An Ambiguous error does not invalidate or hide the GitHub assessment; inspect the review step's log.
+Never commit keys. Free providers have rate/availability limits. Exa Agent runs only after a confirmed finding and adds current grounded remediation guidance when it completes in time. Exa or Ambiguous errors do not invalidate or hide the GitHub assessment; inspect the review step's log.
 
 ## Run locally
 
